@@ -1,1 +1,117 @@
+<html>
+<head>
+    <meta charset='utf-8' />
+    <title>Missing Persons</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1' />
+    <script src='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.js'></script>
+    <link href='https://api.mapbox.com/mapbox-gl-js/v2.3.1/mapbox-gl.css' rel='stylesheet' />
+    
+    <div id='map'></div>
+    <div id='console'>
+      <h1>Missing Persons</h1>
+      <p>Data: <a href='https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions/h9gi-nx95'>Motor vehicle collision injuries and deaths</a> in NYC, Jan 2016</p>
 
+      <div class='session' id='sliderbar'>
+        <h2>Year: <label id='active-year'>1990</label></h2>
+        <input id='slider' class='row' type='range' min='1990' max='2021' step='1' value='1990' />
+      </div>
+    </div>
+
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Helvetica, Arial, Sans-serif;
+          }
+          
+          #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 100%;
+          }
+          
+          h1 {
+            font-size: 20px;
+            line-height: 30px;
+          }
+          
+          h2 {
+            font-size: 14px;
+            line-height: 20px;
+            margin-bottom: 10px;
+          }
+          
+          a {
+            text-decoration: none;
+            color: #2dc4b2;
+          }
+          
+          #console {
+            position: absolute;
+            width: 240px;
+            margin: 10px;
+            padding: 10px 20px;
+            background-color: white;
+          }
+        
+          .session {
+          margin-bottom: 20px;
+        }
+        
+        .row {
+          height: 12px;
+          width: 100%;
+        }
+        
+        .colors {
+          background: linear-gradient(to right, #2dc4b2, #3bb3c3, #669ec4, #8b88b6, #a2719b, #aa5e79);
+          margin-bottom: 5px;
+        }
+        
+        .label {
+          width: 15%;
+          display: inline-block;
+          text-align: center;
+        }
+        </style>
+        </head>
+        
+        <body>
+            
+        </body>
+        <script>
+            mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhbGt0b3B1c3ByaW1lIiwiYSI6ImNrcG11dnc1aTF5cWEybnA5d21xemt4ZzcifQ.IzUEZkavmkKZ4yBOnpOSwg';
+
+            var map = new mapboxgl.Map({
+            container: 'map', // container element id
+            style: 'mapbox://styles/mapbox/light-v10',
+            center: [-110.490721, 34.371377], // initial map center in [lon, lat]
+            zoom: 5.75
+            });
+
+            map.on('load', function() {
+                map.addSource('NAMUSAZ', {
+                'type': 'geojson',
+                'data': 'NAMUSAZknown.geojson'
+                });
+
+
+            map.addLayer({
+                    'id': 'missing',
+                    'type': 'circle',
+                    'source': 'NAMUSAZ',
+                    'paint': {
+                        'circle-radius': 3,
+                        'circle-color': '#223b53',
+                        'circle-stroke-color': 'white',
+                        'circle-stroke-width': 1,
+                        'circle-opacity': 0.5
+                }
+                });
+            
+            });
+
+        </script>
+    });
+    </html>  
