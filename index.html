@@ -8,8 +8,8 @@
     
     <div id='map'></div>
     <div id='console'>
-      <h1>Missing Persons</h1>
-      <p>Data: <a href='https://data.cityofnewyork.us/Public-Safety/NYPD-Motor-Vehicle-Collisions/h9gi-nx95'>Motor vehicle collision injuries and deaths</a> in NYC, Jan 2016</p>
+      <h1>NAMUS Arizona Missing Persons</h1>
+      <p>Data: <a href='https://www.namus.gov/'>NAMUS Database</a> 1990 - 2021</p>
 
       <div class='session' id='sliderbar'>
         <h2>Year: <label id='active-year'>1990</label></h2>
@@ -47,7 +47,7 @@
             color: #2dc4b2;
           }
           
-          #console {
+        #console {
             position: absolute;
             width: 240px;
             margin: 10px;
@@ -55,7 +55,7 @@
             background-color: white;
           }
         
-          .session {
+        .session {
           margin-bottom: 20px;
         }
         
@@ -74,6 +74,18 @@
           display: inline-block;
           text-align: center;
         }
+
+        table, th, td {
+           border: 1px solid black;
+           border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 5px;
+            font-size: 10px;
+
+        }
+
         </style>
         </head>
         
@@ -93,7 +105,7 @@
             map.on('load', function() {
                 map.addSource('NAMUSAZ', {
                 'type': 'geojson',
-                'data': 'NAMUSAZknown.geojson'
+                'data': 'NAMUSAZ.geojson'
                 });
 
 
@@ -103,15 +115,75 @@
                     'source': 'NAMUSAZ',
                     'paint': {
                         'circle-radius': 3,
-                        'circle-color': '#223b53',
-                        'circle-stroke-color': 'white',
-                        'circle-stroke-width': 1,
-                        'circle-opacity': 0.5
-                }
-                });
+                        'circle-color': '#ab0513',
+                        'circle-stroke-width': 0,
+                        'circle-opacity': 1,
+                },
+              //filter: ['==', ['number', ['get', 'YearInt']], '1990']
             
             });
 
+           
+
+            document.getElementById('slider').addEventListener('input', function(e) {
+            var year = parseInt(e.target.value);
+            document.getElementById('active-year').innerText = year;
+            // update the map
+            map.setFilter('missing', ['==', ['number', ['get', 'YearInt']], year]);
+            });
+
+            // Create a popup, but don't add it to the map yet.
+            var popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false
+            });
+            
+            map.on('mouseenter', 'missing', function (f) {
+            // Change the cursor style as a UI indicator.
+          
+            
+            var coordinates = f.features[0].geometry.coordinates.slice();
+            var city = f.features[0].properties.City;
+            var name = f.features[0].properties.Name;
+            var age = f.features[0].properties.Age;
+            var race = f.features[0].properties.Race;
+            
+            // Ensure that if the map is zoomed out such that multiple
+            // copies of the feature are visible, the popup appears
+            // over the copy being pointed to.
+            while (Math.abs(f.lngLat.lng - coordinates[0]) > 180) {
+            coordinates[0] += f.lngLat.lng > coordinates[0] ? 360 : -360;
+            }
+            
+            // Populate the popup and set its coordinates
+            // based on the feature found.
+            
+            popup
+                .setLngLat(coordinates)
+                .setHTML("<table>" +
+                    "<tr>" +
+                        "<th>Name</th>" +
+                        "<th>Age</th>" +
+                        "<th>Race/Ethnicity</th>" +
+                    "</tr>" +
+                    "<tr>" +
+                        "<td>" + name + "</td>" +
+                        "<td>" + age + "</td>" +
+                        "<td>" + race + "</td>" +
+                    "</tr>" +   
+                    "</table>"
+                    )
+                .addTo(map);
+            });
+            map.on('mouseenter', 'missing', function () {
+            map.getCanvas().style.cursor = 'pointer';
+            });
+            
+            map.on('mouseleave', 'missing', function () {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+            });
+        });
         </script>
     });
     </html>  
